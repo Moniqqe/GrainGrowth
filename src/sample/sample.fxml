@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <Label layoutX="20.0" layoutY="15.0" text="1. Typ sąsiedztwa">
          <font>
@@ -20,10 +20,13 @@
       </Label>
       <MenuButton fx:id="neighborhoodMenu" layoutX="20.0" layoutY="35.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Wybierz..." textFill="#757575">
         <items>
-          <MenuItem fx:id="neumannItem" mnemonicParsing="false" text="von Neumann" />
-          <MenuItem fx:id="mooreItem" mnemonicParsing="false" text="Moore" />
-            <MenuItem fx:id="hexagonalItem" mnemonicParsing="false" text="hexagonal" />
-            <MenuItem fx:id="pentagonalItem" mnemonicParsing="false" text="pentagonal" />
+          <MenuItem fx:id="neumannItem" mnemonicParsing="false" onAction="#neumannClick" text="von Neumann" />
+          <MenuItem fx:id="mooreItem" mnemonicParsing="false" onAction="#mooreClick" text="Moore" />
+            <MenuItem fx:id="hexagonalItem" mnemonicParsing="false" onAction="#hexClick" text="hexagonalne" />
+            <MenuItem mnemonicParsing="false" onAction="#hexRClick" text="hexagonalne R" />
+            <MenuItem mnemonicParsing="false" onAction="#hexLClick" text="hexagonalne L" />
+            <MenuItem fx:id="pentagonalItem" mnemonicParsing="false" onAction="#pentClick" text="pentagonalne" />
+            <MenuItem fx:id="withRNItem" mnemonicParsing="false" onAction="#nWithRClick" text="z promieniem" />
         </items>
          <font>
             <Font name="System Italic" size="12.0" />
@@ -36,8 +39,8 @@
       </Label>
       <MenuButton fx:id="boundaryMenu" layoutX="190.0" layoutY="35.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Wybierz..." textFill="#757575">
         <items>
-          <MenuItem fx:id="periodicItem" mnemonicParsing="false" text="periodyczne" />
-          <MenuItem fx:id="nonPeriodicItem" mnemonicParsing="false" text="nie periodyczne" />
+          <MenuItem fx:id="periodicItem" mnemonicParsing="false" onAction="#periodicClick" text="periodyczne" />
+          <MenuItem fx:id="nonPeriodicItem" mnemonicParsing="false" onAction="#nonPeriodicClick" text="nie periodyczne" />
         </items>
          <font>
             <Font name="System Italic" size="12.0" />
@@ -73,17 +76,17 @@
       </Label>
       <TextField fx:id="nRange" layoutX="700.0" layoutY="35.0" prefWidth="70.0" promptText="n" />
       <TextField fx:id="rRange" layoutX="780.0" layoutY="35.0" prefWidth="70.0" promptText="r" />
-      <Button fx:id="startButton" layoutX="900.0" layoutY="10.0" mnemonicParsing="false" onAction="#startClick" text="START">
+      <Button fx:id="startButton" layoutX="900.0" layoutY="10.0" mnemonicParsing="false" onAction="#startClick" text="PLANSZA">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="clearButton" layoutX="900.0" layoutY="40.0" mnemonicParsing="false" onAction="#clearcCick" text="CLEAR">
+      <Button fx:id="clearButton" layoutX="900.0" layoutY="40.0" mnemonicParsing="false" onAction="#clearcCick" text="WYCZYSC">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <GridPane fx:id="gridPane" alignment="CENTER" layoutX="335.0" layoutY="179.0" nodeOrientation="LEFT_TO_RIGHT" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+      <GridPane fx:id="gridPane" alignment="CENTER" layoutX="-1.0" layoutY="100.0" nodeOrientation="LEFT_TO_RIGHT" onScroll="#scrolling" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="100.0">
         <columnConstraints>
           <ColumnConstraints fillWidth="false" halignment="CENTER" hgrow="NEVER" maxWidth="-Infinity" minWidth="0.0" prefWidth="20.0" />
         </columnConstraints>
