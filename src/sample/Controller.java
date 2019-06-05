@@ -1,19 +1,12 @@
 package sample;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
-
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -21,64 +14,21 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
 
-    int[][] IDTab;
-    int[][] energyTab;
-    int[][] weightTab;
-    String[] colors = new String[]{"#ffa771", "#ffdb71", "FF089B", "#d6ff71", "#71ff8b", "#71ffe7", "#71caff", "#8f71ff", "#e771ff", "#ff7171", "E6FFE5"};
-    String[] greenColor = new String[]{"#000f00", "#002d00", "#004b00", "#006900", "#008700", "#00a500", "#00c300", "#00e100", "#00ff00", "#FFFFFF"};
-    boolean bounds;
-    int[][] tab = new int[3][3];
-    int sizeX = 0, sizeY = 0, sizeN = 0, choice = 0;
-    boolean[] genX;
-    boolean[] genY;
-    int[] tempTab;
-    double ktParameter;
-    boolean[] colRTab;
-    boolean[] colGTab;
-    boolean[] colBTab;
-    int[][] col;
+    private int[][] IDTab;
+    private int[][] energyTab;
+    private boolean bounds;
+    private int[][] tab = new int[3][3];
+    private int sizeX = 0, sizeY = 0, sizeN = 0, choice = 0;
+    private boolean[] genX;
+    private boolean[] genY;
+    private double ktParameter;
+    private boolean[] colRTab;
+    private boolean[] colGTab;
+    private boolean[] colBTab;
+    private int[][] col;
 
     @FXML
     private GridPane gridPane;
-
-    @FXML
-    private MenuButton neighborhoodMenu;
-
-    @FXML
-    private MenuItem neumannItem;
-
-    @FXML
-    private MenuItem mooreItem;
-
-    @FXML
-    private MenuItem hexagonalItem;
-
-    @FXML
-    private MenuItem pentagonalItem;
-
-    @FXML
-    private MenuItem withRNItem;
-
-    @FXML
-    private MenuButton boundaryMenu;
-
-    @FXML
-    private MenuItem periodicItem;
-
-    @FXML
-    private MenuItem nonPeriodicItem;
-
-    @FXML
-    private MenuItem evenItem;
-
-    @FXML
-    private MenuItem randomItem;
-
-    @FXML
-    private MenuItem withRItem;
-
-    @FXML
-    private MenuItem clickItem;
 
     @FXML
     private TextField xRange;
@@ -99,32 +49,15 @@ public class Controller implements Initializable {
     private TextField ktRange;
 
     @FXML
-    private Button startButton;
-
-    @FXML
-    private Button clearButton;
-
-    @FXML
-    private Button monteButton;
-
-    @FXML
-    private Button[][] buttonTab;
-
-    @FXML
     private Label[][] labelTab;
 
     @FXML
-    void clearcCick(ActionEvent event) {
+    void clearcCick() {
         gridPane.getChildren().clear();
     }
 
     @FXML
-    void runClick(ActionEvent event) {
-
-    }
-
-    @FXML
-    void monteClick(ActionEvent event) {
+    void monteClick() {
         if (Double.parseDouble(ktRange.getText()) > 0) {
             ktParameter = Double.parseDouble(ktRange.getText());
         } else
@@ -140,26 +73,24 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void energyClick(ActionEvent event) {
+    void energyClick() {
         fillEnergy();
     }
 
 
     @FXML
-    void scrolling(ScrollEvent event) {
+    void scrolling() {
         scrol(choice, bounds);
         fillLabels();
     }
 
     @FXML
-    void startClick(ActionEvent event) {
-        Random r = new Random();
+    void startClick() {
         sizeX = Integer.parseInt(xRange.getText());
         sizeY = Integer.parseInt(yRange.getText());
         sizeN = Integer.parseInt(nRange.getText()) + 1;
         labelTab = new Label[sizeX][sizeY];
         IDTab = new int[sizeX][sizeY];
-        weightTab = new int[sizeX][sizeY];
         energyTab = new int[sizeX][sizeY];
         ktParameter = 0.6;
         for (int i = 0; i < sizeX; i++) {
@@ -169,19 +100,18 @@ public class Controller implements Initializable {
                 labelTab[i][j].setPrefSize(5, 5);
                 labelTab[i][j].setStyle("-fx-background-color:#72adff;");
                 gridPane.add(labelTab[i][j], i, j);
-                weightTab[i][j] = r.nextInt(9);
                 energyTab[i][j] = 0;
             }
         }
     }
 
     @FXML
-    void clickClick(ActionEvent event) {
+    void clickClick() {
         nRange.setEditable(false);
         rRange.setEditable(false);
     }
 
-    void setColors(){
+    private void setColors(){
         colRTab = new boolean[255];
         colGTab = new boolean[255];
         colBTab = new boolean[255];
@@ -199,11 +129,10 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void evenClick(ActionEvent event) {
+    void evenClick() {
         for (int[] row : IDTab)
             Arrays.fill(row, 0);
-        Random g = new Random(); //zmiennna do losowania
-        int a = 0, b = 0, c = 0; //zmienne pomocnicze
+        int a, b, c; //zmienne pomocnicze
         int counter = 0;
         setColors();
         if (Integer.parseInt(nRange.getText()) > 0) {
@@ -221,14 +150,14 @@ public class Controller implements Initializable {
 
         }
     }
-    
+
 
     @FXML
-    void randomClick(ActionEvent event) {
+    void randomClick() {
         for (int[] row : IDTab)
             Arrays.fill(row, 0);
         Random g = new Random(); //zmiennna do losowania
-        int a = 0, b = 0; //zmienne pomocnicze
+        int a, b; //zmienne pomocnicze
         setColors();
         if (Integer.parseInt(nRange.getText()) > 0) {
             int n = Integer.parseInt(nRange.getText());
@@ -246,12 +175,12 @@ public class Controller implements Initializable {
 
 
     @FXML
-    void withRClick(ActionEvent event) {
+    void withRClick() {
         for (int[] row : IDTab)
             Arrays.fill(row, 0);
         Random g = new Random(); //zmiennna do losowania
-        int a = 0, b = 0, j = 0, k = 0, l = 0, m = 0; //zmienne pomocnicze
-        int counter = 0;
+        int a, b, j, k, l, m; //zmienne pomocnicze
+        int counter;
         setColors();
         if (Integer.parseInt(nRange.getText()) > 0 && Integer.parseInt(rRange.getText()) > 0) {
             int n = Integer.parseInt(nRange.getText());
@@ -294,48 +223,48 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void nonPeriodicClick(ActionEvent event) {
+    void nonPeriodicClick() {
         bounds = false;
     }
 
     @FXML
-    void periodicClick(ActionEvent event) {
+    void periodicClick() {
         bounds = true;
     }
 
     @FXML
-    void hexClick(ActionEvent event) {
+    void hexClick() {
         choice = 5;
     }
 
     @FXML
-    void hexRClick(ActionEvent event) {
+    void hexRClick() {
         choice = 4;
     }
 
     @FXML
-    void hexLClick(ActionEvent event) {
+    void hexLClick() {
         choice = 3;
     }
 
     @FXML
-    void mooreClick(ActionEvent event) {
+    void mooreClick() {
         choice = 1;
     }
 
     @FXML
-    void nWithRClick(ActionEvent event) {
+    void nWithRClick() {
         choice = 7;
     }
 
     @FXML
-    void neumannClick(ActionEvent event) {
+    void neumannClick() {
         choice = 2;
     }
 
 
     @FXML
-    void pentClick(ActionEvent event) {
+    void pentClick() {
         choice = 6;
     }
 
@@ -362,7 +291,7 @@ public class Controller implements Initializable {
         }
     }
 
-    void scrol(int a, boolean b) {
+    private void scrol(int a, boolean b) {
         int[][] apt = new int[sizeX][sizeY];
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
@@ -380,36 +309,27 @@ public class Controller implements Initializable {
                     } else if (a == 6) {
                         apt[i][j] = pentrand(i, j, b);
                     }
-//                    } else if (a == 7) {
-//                        apt[i][j] = weightR(i, j, b);
-//                    }
                 } else {
                     apt[i][j] = IDTab[i][j];
                 }
 
             }
         }
-        for (
-                int i = 0;
-                i < sizeX; i++) {
-            for (int j = 0; j < sizeY; j++) {
-                IDTab[i][j] = apt[i][j];
-            }
+        for (int i = 0; i < sizeX; i++) {
+            if (sizeY >= 0) System.arraycopy(apt[i], 0, IDTab[i], 0, sizeY);
         }
 
     }
 
 
-    public int[] neighbours(int[][] tab) {
+    private int[] neighbours(int[][] tab) {
         int[] pomid = new int[sizeN];
         for (int i = 0; i < sizeN; i++) {
             pomid[i] = 0;
         }
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (i == 1 && j == 1) {
-                    //
-                } else {
+                if (!(i == 1 && j == 1)) {
                     for (int k = 0; k < sizeN; k++) {
                         if (tab[i][j] == k) {
                             pomid[k]++;
@@ -421,103 +341,85 @@ public class Controller implements Initializable {
         return pomid;
     }
 
-    int[][] periodic(int x, int y) {
+    private int[][] periodic(int x, int y) {
         if (x == 0 && y == 0) {
-            tab[0][0] = IDTab[sizeX - 1][sizeY - 1];
-            tab[0][1] = IDTab[sizeX - 1][y];
-            tab[0][2] = IDTab[sizeX - 1][y + 1];
-            tab[1][0] = IDTab[x][sizeY - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[x + 1][sizeY - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][y + 1];
+            first(x, y, sizeX);
         } else if (x == 0 && y == sizeY - 1) {
-            tab[0][0] = IDTab[sizeX - 1][y - 1];
-            tab[0][1] = IDTab[sizeX - 1][y];
-            tab[0][2] = IDTab[sizeX - 1][0];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][0];
-            tab[2][0] = IDTab[x + 1][y - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][0];
+            second(x, y, sizeX);
         } else if (x == sizeX - 1 && y == 0) {
-            tab[0][0] = IDTab[x - 1][sizeY - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][y + 1];
-            tab[1][0] = IDTab[x][sizeY - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[0][sizeY - 1];
-            tab[2][1] = IDTab[0][y];
-            tab[2][2] = IDTab[0][y + 1];
+            third(x, y, sizeY);
         } else if (x == sizeX - 1 && y == sizeY - 1) {
-            tab[0][0] = IDTab[x - 1][y - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][0];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][0];
+            fourth(x, y, IDTab[x]);
             tab[2][0] = IDTab[0][y - 1];
             tab[2][1] = IDTab[0][y];
             tab[2][2] = IDTab[0][0];
         } else if (x == 0 && y > 0 && y < sizeY - 1) {
-            tab[0][0] = IDTab[sizeX - 1][y - 1];
-            tab[0][1] = IDTab[sizeX - 1][y];
-            tab[0][2] = IDTab[sizeX - 1][y + 1];
-            ;
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[x + 1][y - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][y + 1];
+            fifth(x, y, sizeX);
         } else if (x > 0 && x < sizeX - 1 && y == 0) {
-            tab[0][0] = IDTab[x - 1][sizeY - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][y + 1];
-            tab[1][0] = IDTab[x][sizeY - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[x + 1][sizeY - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][y + 1];
+            first(x, y, x);
         } else if (x == sizeX - 1 && y > 0 && y < sizeY - 1) {
-            tab[0][0] = IDTab[x - 1][y - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][y + 1];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[0][y - 1];
-            tab[2][1] = IDTab[0][y];
-            tab[2][2] = IDTab[0][y + 1];
+            third(x, y, y);
         } else if (y == sizeY - 1 && x > 0 && x < sizeX - 1) {
-            tab[0][0] = IDTab[x - 1][y - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][0];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][0];
-            tab[2][0] = IDTab[x + 1][y - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][0];
+            second(x, y, x);
         } else {
-            tab[0][0] = IDTab[x - 1][y - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][y + 1];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[x + 1][y - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][y + 1];
+            fifth(x, y, x);
         }
         return tab;
     }
 
-    int[][] nonPeriodic(int x, int y) {
+    private void fifth(int x, int y, int sizeX) {
+        tab[0][0] = IDTab[sizeX - 1][y - 1];
+        tab[0][1] = IDTab[sizeX - 1][y];
+        tab[0][2] = IDTab[sizeX - 1][y + 1];
+        tab[1][0] = IDTab[x][y - 1];
+        tab[1][1] = IDTab[x][y];
+        tab[1][2] = IDTab[x][y + 1];
+        tab[2][0] = IDTab[x + 1][y - 1];
+        tab[2][1] = IDTab[x + 1][y];
+        tab[2][2] = IDTab[x + 1][y + 1];
+    }
+
+    private void fourth(int x, int y, int[] ints) {
+        tab[0][0] = IDTab[x - 1][y - 1];
+        tab[0][1] = IDTab[x - 1][y];
+        tab[0][2] = IDTab[x - 1][0];
+        tab[1][0] = ints[y - 1];
+        tab[1][1] = ints[y];
+        tab[1][2] = ints[0];
+    }
+
+    private void third(int x, int y, int sizeY) {
+        tab[0][0] = IDTab[x - 1][sizeY - 1];
+        tab[0][1] = IDTab[x - 1][y];
+        tab[0][2] = IDTab[x - 1][y + 1];
+        tab[1][0] = IDTab[x][sizeY - 1];
+        tab[1][1] = IDTab[x][y];
+        tab[1][2] = IDTab[x][y + 1];
+        tab[2][0] = IDTab[0][sizeY - 1];
+        tab[2][1] = IDTab[0][y];
+        tab[2][2] = IDTab[0][y + 1];
+    }
+
+    private void second(int x, int y, int sizeX) {
+        fourth(sizeX, y, IDTab[x]);
+        tab[2][0] = IDTab[x + 1][y - 1];
+        tab[2][1] = IDTab[x + 1][y];
+        tab[2][2] = IDTab[x + 1][0];
+    }
+
+    private void first(int x, int y, int sizeX) {
+        tab[0][0] = IDTab[sizeX - 1][sizeY - 1];
+        tab[0][1] = IDTab[sizeX - 1][y];
+        tab[0][2] = IDTab[sizeX - 1][y + 1];
+        tab[1][0] = IDTab[x][sizeY - 1];
+        tab[1][1] = IDTab[x][y];
+        tab[1][2] = IDTab[x][y + 1];
+        tab[2][0] = IDTab[x + 1][sizeY - 1];
+        tab[2][1] = IDTab[x + 1][y];
+        tab[2][2] = IDTab[x + 1][y + 1];
+    }
+
+    private int[][] nonPeriodic(int x, int y) {
         if (x == 0 && y == 0) {
             tab[0][0] = 0;
             tab[0][1] = 0;
@@ -599,30 +501,13 @@ public class Controller implements Initializable {
             tab[2][1] = IDTab[x + 1][y];
             tab[2][2] = 0;
         } else {
-            tab[0][0] = IDTab[x - 1][y - 1];
-            tab[0][1] = IDTab[x - 1][y];
-            tab[0][2] = IDTab[x - 1][y + 1];
-            tab[1][0] = IDTab[x][y - 1];
-            tab[1][1] = IDTab[x][y];
-            tab[1][2] = IDTab[x][y + 1];
-            tab[2][0] = IDTab[x + 1][y - 1];
-            tab[2][1] = IDTab[x + 1][y];
-            tab[2][2] = IDTab[x + 1][y + 1];
+            fifth(x, y, x);
         }
 
         return tab;
     }
 
-    int weightR(int x, int y, boolean w) {
-        int r = Integer.parseInt(rRange.getText());
-        int[][] tmpTab = new int[2 * r + 1][2 * r + 1];
-        int max = 0, max2 = 0;
-
-        return max;
-    }
-
-
-    int pentrand(int x, int y, boolean w) {
+    private int pentrand(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
@@ -639,7 +524,7 @@ public class Controller implements Initializable {
             tab[1][2] = 0;
             tab[2][2] = 0;
         } else if (a == 2) {
-            tab[0][2] = 0;
+            tab[0][0] = 0;
             tab[0][1] = 0;
             tab[0][2] = 0;
         } else if (a == 3) {
@@ -647,6 +532,10 @@ public class Controller implements Initializable {
             tab[2][1] = 0;
             tab[2][2] = 0;
         }
+        return retMax();
+    }
+
+    private int retMax() {
         int[] pom = neighbours(tab);
         int max = 0;
         int max2 = 0;
@@ -659,7 +548,7 @@ public class Controller implements Initializable {
         return max2;
     }
 
-    int hexrand(int x, int y, boolean w) {
+    private int hexrand(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
@@ -674,19 +563,10 @@ public class Controller implements Initializable {
             tab[0][0] = 0;
             tab[2][2] = 0;
         }
-        int[] pom = neighbours(tab);
-        int max = 0;
-        int max2 = 0;
-        for (int i = 0; i < sizeN; i++) {
-            if (pom[i] > max && i != 0) {
-                max = pom[i];
-                max2 = i;
-            }
-        }
-        return max2;
+        return retMax();
     }
 
-    int hexleft(int x, int y, boolean w) {
+    private int hexleft(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
@@ -694,19 +574,10 @@ public class Controller implements Initializable {
         }
         tab[0][2] = 0;
         tab[2][0] = 0;
-        int[] pom = neighbours(tab);
-        int max = 0;
-        int max2 = 0;
-        for (int i = 0; i < sizeN; i++) {
-            if (pom[i] > max && i != 0) {
-                max = pom[i];
-                max2 = i;
-            }
-        }
-        return max2;
+        return retMax();
     }
 
-    int hexright(int x, int y, boolean w) {
+    private int hexright(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
@@ -714,19 +585,10 @@ public class Controller implements Initializable {
         }
         tab[0][0] = 0;
         tab[2][2] = 0;
-        int[] pom = neighbours(tab);
-        int max = 0;
-        int max2 = 0;
-        for (int i = 0; i < sizeN; i++) {
-            if (pom[i] > max && i != 0) {
-                max = pom[i];
-                max2 = i;
-            }
-        }
-        return max2;
+        return retMax();
     }
 
-    int neumann(int x, int y, boolean w) {
+    private int neumann(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
@@ -736,37 +598,19 @@ public class Controller implements Initializable {
         tab[0][2] = 0;
         tab[2][0] = 0;
         tab[2][2] = 0;
-        int[] pom = neighbours(tab);
-        int max = 0;
-        int max2 = 0;
-        for (int i = 0; i < sizeN; i++) {
-            if (pom[i] > max && i != 0) {
-                max = pom[i];
-                max2 = i;
-            }
-        }
-        return max2;
+        return retMax();
     }
 
-    int moore(int x, int y, boolean w) {
+    private int moore(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
         } else {
             tab = nonPeriodic(x, y);
         }
-        int[] pom = neighbours(tab);
-        int max = 0;
-        int max2 = 0;
-        for (int i = 0; i < sizeN; i++) {
-            if (pom[i] > max && i != 0) {
-                max = pom[i];
-                max2 = i;
-            }
-        }
-        return max2;
+        return retMax();
     }
 
-    int getX() {
+    private int getX() {
         Random r = new Random();
         int i = r.nextInt(sizeX);
         if (genX[i]) {
@@ -777,7 +621,7 @@ public class Controller implements Initializable {
         }
     }
 
-    int getR() {
+    private int getR() {
         Random r = new Random();
         int i = r.nextInt(255);
         if (colRTab[i]) {
@@ -788,7 +632,7 @@ public class Controller implements Initializable {
         }
     }
 
-    int getG() {
+    private int getG() {
         Random r = new Random();
         int i = r.nextInt(255);
         if (colGTab[i]) {
@@ -799,7 +643,7 @@ public class Controller implements Initializable {
         }
     }
 
-    int getB() {
+    private int getB() {
         Random r = new Random();
         int i = r.nextInt(255);
         if (colBTab[i]) {
@@ -810,7 +654,7 @@ public class Controller implements Initializable {
         }
     }
 
-    int getY() {
+    private int getY() {
         Random r = new Random();
         int i = r.nextInt(sizeX);
         if (genY[i]) {
@@ -822,7 +666,7 @@ public class Controller implements Initializable {
     }
 
 
-    void monteCarlo() {
+    private void monteCarlo() {
         genX = new boolean[sizeX];
         genY = new boolean[sizeY];
         for (int o = 0; o < sizeX; o++)
@@ -830,14 +674,14 @@ public class Controller implements Initializable {
         for (int o = 0; o < sizeY; o++)
             genY[o] = true;
         Random r = new Random();
-        int startEnergy = 0, newEnergy = 0, ID = 0, tempX = getX(), tempY = getY();
-        int[] tempEnergyTab = new int[sizeN];
-        int[][] omg = new int[3][3];
+        int startEnergy = 0, newEnergy = 0, ID, tempX = getX(), tempY = getY();
+        int[] tempEnergyTab;
+        int[][] omg;
         for (int i = 0; i < (sizeX * sizeY); i++) {
             tab = nonPeriodic(tempX, tempY);
             omg = tab;
             ID = IDTab[tempX][tempY];
-            tempTab = neighbours(tab);
+            int[] tempTab = neighbours(tab);
             for (int k = 1; k < sizeN; k++) {
                 if ((tempTab[k] > 0) && (k != ID)) {
                     startEnergy += tempTab[k];
@@ -872,8 +716,8 @@ public class Controller implements Initializable {
         }
     }
 
-    void fillEnergy() {
-        int max = energyTab[0][0], tempMax = 0;
+    private void fillEnergy() {
+        int max = energyTab[0][0], tempMax;
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 tempMax = energyTab[i][j];
@@ -899,7 +743,7 @@ public class Controller implements Initializable {
 
 
 
-    void fillLabels() {
+    private void fillLabels() {
 
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
