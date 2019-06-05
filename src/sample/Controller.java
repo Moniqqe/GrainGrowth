@@ -1,13 +1,9 @@
 package sample;
 
-import com.sun.javafx.css.Rule;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,12 +11,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
-import sun.print.DocumentPropertiesUI;
 
-import javax.management.relation.Role;
-import javax.xml.crypto.dom.DOMCryptoContext;
-import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,13 +20,23 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    ArrayList clickedList = new ArrayList();
+
     int[][] IDTab;
+    int[][] energyTab;
     int[][] weightTab;
-    String[] colors = {"FF089B", "#ffa771", "#ffdb71", "#d6ff71", "#71ff8b", "#71ffe7", "#71caff", "#8f71ff", "#e771ff", "#ff7171", "E6FFE5"};
+    String[] colors = new String[]{"#ffa771", "#ffdb71", "FF089B", "#d6ff71", "#71ff8b", "#71ffe7", "#71caff", "#8f71ff", "#e771ff", "#ff7171", "E6FFE5"};
+    String[] greenColor = new String[]{"#000f00", "#002d00", "#004b00", "#006900", "#008700", "#00a500", "#00c300", "#00e100", "#00ff00", "#FFFFFF"};
     boolean bounds;
     int[][] tab = new int[3][3];
     int sizeX = 0, sizeY = 0, sizeN = 0, choice = 0;
+    boolean[] genX;
+    boolean[] genY;
+    int[] tempTab;
+    double ktParameter;
+    boolean[] colRTab;
+    boolean[] colGTab;
+    boolean[] colBTab;
+    int[][] col;
 
     @FXML
     private GridPane gridPane;
@@ -86,16 +87,25 @@ public class Controller implements Initializable {
     private TextField yRange;
 
     @FXML
+    private TextField mcRange;
+
+    @FXML
     private TextField nRange;
 
     @FXML
     private TextField rRange;
 
     @FXML
+    private TextField ktRange;
+
+    @FXML
     private Button startButton;
 
     @FXML
     private Button clearButton;
+
+    @FXML
+    private Button monteButton;
 
     @FXML
     private Button[][] buttonTab;
@@ -114,6 +124,28 @@ public class Controller implements Initializable {
     }
 
     @FXML
+    void monteClick(ActionEvent event) {
+        if (Double.parseDouble(ktRange.getText()) > 0) {
+            ktParameter = Double.parseDouble(ktRange.getText());
+        } else
+            ktParameter = 1.0;
+        if ((Integer.parseInt(mcRange.getText()) > 0) && (Integer.parseInt(mcRange.getText()) <= 100)) {
+            for (int i = 0; i < Integer.parseInt(mcRange.getText()); i++) {
+                bounds = false;
+                monteCarlo();
+                fillLabels();
+            }
+
+        }
+    }
+
+    @FXML
+    void energyClick(ActionEvent event) {
+        fillEnergy();
+    }
+
+
+    @FXML
     void scrolling(ScrollEvent event) {
         scrol(choice, bounds);
         fillLabels();
@@ -128,6 +160,8 @@ public class Controller implements Initializable {
         labelTab = new Label[sizeX][sizeY];
         IDTab = new int[sizeX][sizeY];
         weightTab = new int[sizeX][sizeY];
+        energyTab = new int[sizeX][sizeY];
+        ktParameter = 0.6;
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 labelTab[i][j] = new Label();
@@ -136,6 +170,7 @@ public class Controller implements Initializable {
                 labelTab[i][j].setStyle("-fx-background-color:#72adff;");
                 gridPane.add(labelTab[i][j], i, j);
                 weightTab[i][j] = r.nextInt(9);
+                energyTab[i][j] = 0;
             }
         }
     }
@@ -146,6 +181,23 @@ public class Controller implements Initializable {
         rRange.setEditable(false);
     }
 
+    void setColors(){
+        colRTab = new boolean[255];
+        colGTab = new boolean[255];
+        colBTab = new boolean[255];
+        for (int i = 0; i < 255; i++) {
+            colRTab[i] = true;
+            colGTab[i] = true;
+            colBTab[i] = true;
+        }
+        col = new int[sizeN][3];
+        for (int i = 0; i < sizeN; i++) {
+            col[i][0] = getR();
+            col[i][1] = getG();
+            col[i][2] = getB();
+        }
+    }
+
     @FXML
     void evenClick(ActionEvent event) {
         for (int[] row : IDTab)
@@ -153,6 +205,7 @@ public class Controller implements Initializable {
         Random g = new Random(); //zmiennna do losowania
         int a = 0, b = 0, c = 0; //zmienne pomocnicze
         int counter = 0;
+        setColors();
         if (Integer.parseInt(nRange.getText()) > 0) {
             int n = Integer.parseInt(nRange.getText());
             a = (int) Math.sqrt(n);
@@ -160,24 +213,23 @@ public class Controller implements Initializable {
             c = Integer.parseInt(yRange.getText()) / (a * 2);
             for (int i = b; i < Integer.parseInt(xRange.getText()); i = i + 2 * b) {
                 for (int j = c; j < Integer.parseInt(yRange.getText()); j = j + 2 * c) {
-                    if (counter >= 10)
-                        counter -= 10;
                     IDTab[i][j] = counter;
-                    labelTab[i][j].setStyle("-fx-background-color:" + colors[counter] + ";");
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(" + col[IDTab[i][j]][0] + "," + col[IDTab[i][j]][1] + "," + col[IDTab[i][j]][2] + ");");
                     counter++;
                 }
             }
 
         }
     }
-
+    
 
     @FXML
     void randomClick(ActionEvent event) {
         for (int[] row : IDTab)
             Arrays.fill(row, 0);
         Random g = new Random(); //zmiennna do losowania
-        int a = 0, b = 0, col = 0; //zmienne pomocnicze
+        int a = 0, b = 0; //zmienne pomocnicze
+        setColors();
         if (Integer.parseInt(nRange.getText()) > 0) {
             int n = Integer.parseInt(nRange.getText());
             for (int i = 1; i <= n; i++) {
@@ -185,10 +237,7 @@ public class Controller implements Initializable {
                 b = g.nextInt(Integer.parseInt(yRange.getText()));
                 if (IDTab[a][b] == 0) {
                     IDTab[a][b] = i;
-                    if (col >= 10)
-                        col -= 10;
-                    labelTab[a][b].setStyle("-fx-background-color:" + colors[col] + ";");
-                    col++;
+                    labelTab[a][b].setStyle("-fx-background-color: rgb(" + col[IDTab[a][b]][0] + "," + col[IDTab[a][b]][1] + "," + col[IDTab[a][b]][2] + ");");
                 } else
                     i--;
             }
@@ -202,7 +251,8 @@ public class Controller implements Initializable {
             Arrays.fill(row, 0);
         Random g = new Random(); //zmiennna do losowania
         int a = 0, b = 0, j = 0, k = 0, l = 0, m = 0; //zmienne pomocnicze
-        int counter = 0, col = 0;
+        int counter = 0;
+        setColors();
         if (Integer.parseInt(nRange.getText()) > 0 && Integer.parseInt(rRange.getText()) > 0) {
             int n = Integer.parseInt(nRange.getText());
             int r = Integer.parseInt(rRange.getText());
@@ -235,10 +285,7 @@ public class Controller implements Initializable {
                 }
                 if (counter == 0) {
                     IDTab[a][b] = i;
-                    if (col >= 10)
-                        col -= 10;
-                    labelTab[a][b].setStyle("-fx-background-color:" + colors[col] + ";");
-                    col++;
+                    labelTab[a][b].setStyle("-fx-background-color: rgb(" + col[IDTab[a][b]][0] + "," + col[IDTab[a][b]][1] + "," + col[IDTab[a][b]][2] + ");");
                 } else
                     i--;
             }
@@ -301,6 +348,8 @@ public class Controller implements Initializable {
         rRange.setText("0");
         xRange.setText("0");
         yRange.setText("0");
+        mcRange.setText("0");
+        ktRange.setText("0");
         bounds = false;
 
         gridPane.setAlignment(Pos.CENTER);
@@ -330,9 +379,10 @@ public class Controller implements Initializable {
                         apt[i][j] = hexrand(i, j, b);
                     } else if (a == 6) {
                         apt[i][j] = pentrand(i, j, b);
-                    } else if (a == 7) {
-                        apt[i][j] = weightR(i, j, b);
                     }
+//                    } else if (a == 7) {
+//                        apt[i][j] = weightR(i, j, b);
+//                    }
                 } else {
                     apt[i][j] = IDTab[i][j];
                 }
@@ -348,6 +398,7 @@ public class Controller implements Initializable {
         }
 
     }
+
 
     public int[] neighbours(int[][] tab) {
         int[] pomid = new int[sizeN];
@@ -564,7 +615,7 @@ public class Controller implements Initializable {
 
     int weightR(int x, int y, boolean w) {
         int r = Integer.parseInt(rRange.getText());
-        int[][] tmpTab = new int [2*r+1][2*r+1];
+        int[][] tmpTab = new int[2 * r + 1][2 * r + 1];
         int max = 0, max2 = 0;
 
         return max;
@@ -715,20 +766,155 @@ public class Controller implements Initializable {
         return max2;
     }
 
-    void fillLabels() {
+    int getX() {
+        Random r = new Random();
+        int i = r.nextInt(sizeX);
+        if (genX[i]) {
+            genX[i] = false;
+            return i;
+        } else {
+            return getX();
+        }
+    }
+
+    int getR() {
+        Random r = new Random();
+        int i = r.nextInt(255);
+        if (colRTab[i]) {
+            colRTab[i] = false;
+            return i;
+        } else {
+            return getR();
+        }
+    }
+
+    int getG() {
+        Random r = new Random();
+        int i = r.nextInt(255);
+        if (colGTab[i]) {
+            colGTab[i] = false;
+            return i;
+        } else {
+            return getG();
+        }
+    }
+
+    int getB() {
+        Random r = new Random();
+        int i = r.nextInt(255);
+        if (colBTab[i]) {
+            colBTab[i] = false;
+            return i;
+        } else {
+            return getB();
+        }
+    }
+
+    int getY() {
+        Random r = new Random();
+        int i = r.nextInt(sizeX);
+        if (genY[i]) {
+            genY[i] = false;
+            return i;
+        } else {
+            return getY();
+        }
+    }
+
+
+    void monteCarlo() {
+        genX = new boolean[sizeX];
+        genY = new boolean[sizeY];
+        for (int o = 0; o < sizeX; o++)
+            genX[o] = true;
+        for (int o = 0; o < sizeY; o++)
+            genY[o] = true;
+        Random r = new Random();
+        int startEnergy = 0, newEnergy = 0, ID = 0, tempX = getX(), tempY = getY();
+        int[] tempEnergyTab = new int[sizeN];
+        int[][] omg = new int[3][3];
+        for (int i = 0; i < (sizeX * sizeY); i++) {
+            tab = nonPeriodic(tempX, tempY);
+            omg = tab;
+            ID = IDTab[tempX][tempY];
+            tempTab = neighbours(tab);
+            for (int k = 1; k < sizeN; k++) {
+                if ((tempTab[k] > 0) && (k != ID)) {
+                    startEnergy += tempTab[k];
+                }
+            }
+            for (int k = 1; k < sizeN; k++) {
+                if ((tempTab[k] > 0) && (k != ID)) {
+                    omg[1][1] = k;
+                    tempEnergyTab = neighbours(omg);
+                    for (int m = 1; m < sizeN; m++) {
+                        if ((tempEnergyTab[k] > 0) && (m != k)) {
+                            newEnergy += tempEnergyTab[m];
+                        }
+                    }
+                    if ((newEnergy - startEnergy) <= 0) {
+                        startEnergy = newEnergy;
+                        ID = k;
+                    } else if ((newEnergy - startEnergy) > 0) {
+                        double probability = Math.exp(-(newEnergy - startEnergy) / ktParameter) * 100;
+                        double randNumber = r.nextDouble() * 100;
+
+                        if (randNumber < probability) {
+                            startEnergy = newEnergy;
+                            ID = k;
+                        }
+                    }
+                }
+            }
+            IDTab[tempX][tempY] = ID;
+            energyTab[tempX][tempY] = startEnergy;
+            //System.out.println(startEnergy);
+        }
+    }
+
+    void fillEnergy() {
+        int max = energyTab[0][0], tempMax = 0;
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
-
-                if ((IDTab[i][j]) > 0) {
-                    if ((IDTab[i][j]) < 10) {
-                        labelTab[i][j].setStyle("-fx-background-color:" + colors[IDTab[i][j] - 1] + ";");
-                    } else if (((IDTab[i][j]) >= 10) && ((IDTab[i][j]) < 20)) {
-                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 10)] + ";");
-                    } else {
-                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 20)] + ";");
-                    }
+                tempMax = energyTab[i][j];
+                if (tempMax > max) {
+                    max = tempMax;
+                }
+            }
+        }
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                if (energyTab[i][j] < 0) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(100, 100, 100);");
+                } else if (energyTab[i][j] == 0) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0, 0, 0);");
+                } else if ((energyTab[i][j] * 255 / max) >= 255) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0, 255, 0);");
+                } else {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0," + (energyTab[i][j] * 255 / max) + ",0);");
                 }
             }
         }
     }
+
+
+
+    void fillLabels() {
+
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+
+                if ((IDTab[i][j]) > 0) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(" + col[IDTab[i][j]][0] + "," + col[IDTab[i][j]][1] + "," + col[IDTab[i][j]][2] + ");");
+//                    if ((IDTab[i][j]) < 10) {
+//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[IDTab[i][j] - 1] + ";");
+//                    } else if (((IDTab[i][j]) >= 10) && ((IDTab[i][j]) < 20)) {
+//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 10)] + ";");
+//                    } else {
+//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 20)] + ";");
+                }
+            }
+        }
+    }
+
 }
