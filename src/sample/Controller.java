@@ -62,7 +62,7 @@ public class Controller implements Initializable {
             ktParameter = Double.parseDouble(ktRange.getText());
         } else
             ktParameter = 1.0;
-        if ((Integer.parseInt(mcRange.getText()) > 0) && (Integer.parseInt(mcRange.getText()) <= 100)) {
+        if ((Integer.parseInt(mcRange.getText()) > 0) && (Integer.parseInt(mcRange.getText()) <= 1000)) {
             for (int i = 0; i < Integer.parseInt(mcRange.getText()); i++) {
                 bounds = false;
                 monteCarlo();
@@ -97,7 +97,7 @@ public class Controller implements Initializable {
             for (int j = 0; j < sizeY; j++) {
                 labelTab[i][j] = new Label();
                 labelTab[i][j].setMinSize(1, 1);
-                labelTab[i][j].setPrefSize(5, 5);
+                labelTab[i][j].setPrefSize(10, 10);
                 labelTab[i][j].setStyle("-fx-background-color:#72adff;");
                 gridPane.add(labelTab[i][j], i, j);
                 energyTab[i][j] = 0;
