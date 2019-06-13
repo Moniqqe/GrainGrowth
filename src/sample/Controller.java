@@ -6,7 +6,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import org.omg.PortableServer.LIFESPAN_POLICY_ID;
+import java.util.Arrays;
+import java.util.Collections;
+
 
 import java.awt.*;
 import java.net.URL;
@@ -83,6 +85,10 @@ public class Controller implements Initializable {
         fillEnergy();
     }
 
+    @FXML
+    void densClick(){
+        fillDensity();
+    }
 
     @FXML
     void scrolling() {
@@ -134,11 +140,21 @@ public class Controller implements Initializable {
             colGTab[i] = true;
             colBTab[i] = true;
         }
-        col = new int[100][3];
-        for (int i = 0; i < 100; i++) {
+        col = new int[255][3];
+        for (int i = 0; i < sizeN; i++) {
             col[i][0] = getR();
             col[i][1] = getG();
             col[i][2] = getB();
+        }
+        for (int i = 0; i < 255; i++) {
+            colRTab[i] = true;
+            colGTab[i] = true;
+            colBTab[i] = true;
+        }
+        for (int i = sizeN; i < 255; i++) {
+            col[i][0] = getR();
+            col[i][1] = 0;
+            col[i][2] = 0;
         }
     }
 
@@ -848,8 +864,8 @@ public class Controller implements Initializable {
     public boolean edge(int i, int j) {
         tab = nonPeriodic(i, j);
         int[] pom = neighbours(tab);
-        for (int k = 0; k < sizeN; k++)
-            if ((k != IDTab[i][j]) && (pom[k] != 0))
+        for (int k = 1; k < sizeN; k++)
+            if ((k != IDTab[i][j]) && (pom[k] > 0))
                 return true;
         return false;
     }
@@ -895,30 +911,39 @@ public class Controller implements Initializable {
 
     private void DRX() {
         dislocations();
-        int n = sizeN;
-        for (int i = 0; i < sizeX; i++) {
-            for (int j = 0; j < sizeY; j++) {
-                //System.out.println(densityDRX[i][j]);
-                if ((densityDRX[i][j] >= criticRo) && (edge(i, j))) {
-                    System.out.println("TAK");
-                    IDTab[i][j] = n++;
-                    densityDRX[i][j] = 0.0;
+
+            for (int i = 0; i < sizeX; i++) {
+                for (int j = 0; j < sizeY; j++) {
+                    //System.out.println(densityDRX[i][j]);
+                    if ((densityDRX[i][j] >= criticRo) && (edge(i, j))) {
+                        System.out.println("TAK");
+                        IDTab[i][j] = sizeN++;
+                        System.out.println(sizeN);
+                        densityDRX[i][j] = 0.0;
+                    }
                 }
             }
-        }
-        if (tT != 0) {
+
+        if (tT > 0) {
             for (int i = 0; i < sizeX; i++) {
                 for (int j = 0; j < sizeY; j++) {
                     tab = nonPeriodic(i, j);
                     int[] pom = neighbours(tab);
-                    int tem = Arrays.stream(pom).sum();
+                    int tem = 0;
+                    for(int m = 1; m <= Integer.parseInt(nRange.getText()); m++)
+                        tem+=pom[m];
                     int max = 0;
-                    if ((tem < 8) && (retMaxRo(i, j) <= stateDRX[i][j])) {
-                        for (int m = 0; m < 3; m++) {
-                            for (int o = 0; o < 3; o++)
-                                if (max < tab[m][o])
-                                    max = tab[m][o];
-                        }
+                    int [] temp = new int[sizeN];
+                    for (int m = 0; m < 3; m++) {
+                        for (int o = 0; o < 3; o++)
+                            temp[tab[m][o]]++;
+                    }
+                    max = Arrays.stream(temp).max().getAsInt();
+
+//                    System.out.println(max);
+//                    System.out.println(tem);
+                    if ((tem < 8) && (retMaxRo(i, j) < stateDRX[i][j])) {
+                        System.out.println("TUTAJ");
                         IDTab[i][j] = max;
                         densityDRX[i][j] = 0.0;
                     }
@@ -926,6 +951,7 @@ public class Controller implements Initializable {
             }
         }
         tT = tT + 0.01;
+        System.out.println(tT);
     }
 
     private void recrystallize() {
@@ -953,6 +979,31 @@ public class Controller implements Initializable {
                     labelTab[i][j].setStyle("-fx-background-color: rgb(0, 255, 0);");
                 } else {
                     labelTab[i][j].setStyle("-fx-background-color: rgb(0," + (energyTab[i][j] * 255 / max) + ",0);");
+                }
+            }
+        }
+    }
+
+    private void fillDensity() {
+        double max = densityDRX[0][0], tempMax;
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                tempMax = densityDRX[i][j];
+                if (tempMax > max) {
+                    max = tempMax;
+                }
+            }
+        }
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                if (densityDRX[i][j] < 0) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(100, 100, 100);");
+                } else if (densityDRX[i][j] == 0) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0, 0, 0);");
+                } else if ((densityDRX[i][j] * 255 / max) >= 255) {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0, 0, 255);");
+                } else {
+                    labelTab[i][j].setStyle("-fx-background-color: rgb(0, 0," + (densityDRX[i][j] * 255 / max) +");");
                 }
             }
         }
