@@ -6,10 +6,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import org.omg.PortableServer.LIFESPAN_POLICY_ID;
+
+import java.awt.*;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.List;
 
 public class Controller implements Initializable {
 
@@ -26,6 +28,10 @@ public class Controller implements Initializable {
     private boolean[] colGTab;
     private boolean[] colBTab;
     private int[][] col;
+    private double stateDRX[][];
+    private double densityDRX[][];
+    double aA, bB, tT, criticRo;
+    double[][] tabRo = new double[3][3];
 
     @FXML
     private GridPane gridPane;
@@ -92,6 +98,12 @@ public class Controller implements Initializable {
         labelTab = new Label[sizeX][sizeY];
         IDTab = new int[sizeX][sizeY];
         energyTab = new int[sizeX][sizeY];
+        stateDRX = new double[sizeX][sizeY];
+        densityDRX = new double[sizeX][sizeY];
+        aA = 86710969050178.5;
+        bB = 9.41268203527779;
+        tT = 0;
+        criticRo = 4215840142323.42;
         ktParameter = 0.6;
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
@@ -101,6 +113,8 @@ public class Controller implements Initializable {
                 labelTab[i][j].setStyle("-fx-background-color:#72adff;");
                 gridPane.add(labelTab[i][j], i, j);
                 energyTab[i][j] = 0;
+                stateDRX[i][j] = 0.0;
+                densityDRX[i][j] = 0.0;
             }
         }
     }
@@ -111,7 +125,7 @@ public class Controller implements Initializable {
         rRange.setEditable(false);
     }
 
-    private void setColors(){
+    private void setColors() {
         colRTab = new boolean[255];
         colGTab = new boolean[255];
         colBTab = new boolean[255];
@@ -120,8 +134,8 @@ public class Controller implements Initializable {
             colGTab[i] = true;
             colBTab[i] = true;
         }
-        col = new int[sizeN][3];
-        for (int i = 0; i < sizeN; i++) {
+        col = new int[100][3];
+        for (int i = 0; i < 100; i++) {
             col[i][0] = getR();
             col[i][1] = getG();
             col[i][2] = getB();
@@ -151,6 +165,13 @@ public class Controller implements Initializable {
         }
     }
 
+    @FXML
+    void DRXClick() {
+        for (int i = 0; i < 100; i++) {
+            recrystallize();
+        }
+        fillLabels();
+    }
 
     @FXML
     void randomClick() {
@@ -548,6 +569,115 @@ public class Controller implements Initializable {
         return max2;
     }
 
+    private double[][] nonPeriodicRo(int x, int y) {
+        if (x == 0 && y == 0) {
+            tabRo[0][0] = 0.0;
+            tabRo[0][1] = 0.0;
+            tabRo[0][2] = 0.0;
+            tabRo[1][0] = 0.0;
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = 0.0;
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = densityDRX[x + 1][y + 1];
+        } else if (x == 0 && y == sizeY - 1) {
+            tabRo[0][0] = 0.0;
+            tabRo[0][1] = 0.0;
+            tabRo[0][2] = 0.0;
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = 0.0;
+            tabRo[2][0] = densityDRX[x + 1][y - 1];
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = 0.0;
+        } else if (x == sizeX - 1 && y == 0) {
+            tabRo[0][0] = 0.0;
+            tabRo[0][1] = densityDRX[x - 1][y];
+            tabRo[0][2] = densityDRX[x - 1][y + 1];
+            tabRo[1][0] = 0.0;
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = 0.0;
+            tabRo[2][1] = 0.0;
+            tabRo[2][2] = 0.0;
+        } else if (x == sizeX - 1 && y == sizeY - 1) {
+            tabRo[0][0] = densityDRX[x - 1][y - 1];
+            tabRo[0][1] = densityDRX[x - 1][y];
+            tabRo[0][2] = 0.0;
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = 0.0;
+            tabRo[2][0] = 0.0;
+            tabRo[2][1] = 0.0;
+            tabRo[2][2] = 0.0;
+        } else if (x == 0 && y > 0 && y < sizeY - 1) {
+            tabRo[0][0] = 0.0;
+            tabRo[0][1] = 0.0;
+            tabRo[0][2] = 0.0;
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = densityDRX[x + 1][y - 1];
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = densityDRX[x + 1][y + 1];
+        } else if (x > 0 && x < sizeX - 1 && y == 0) {
+            tabRo[0][0] = 0.0;
+            tabRo[0][1] = densityDRX[x - 1][y];
+            tabRo[0][2] = densityDRX[x - 1][y + 1];
+            tabRo[1][0] = 0.0;
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = 0.0;
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = densityDRX[x + 1][y + 1];
+        } else if (x == sizeX - 1 && y > 0 && y < sizeY - 1) {
+            tabRo[0][0] = densityDRX[x - 1][y - 1];
+            tabRo[0][1] = densityDRX[x - 1][y];
+            tabRo[0][2] = densityDRX[x - 1][y + 1];
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = 0.0;
+            tabRo[2][1] = 0.0;
+            tabRo[2][2] = 0.0;
+        } else if (y == sizeY - 1 && x > 0 && x < sizeX - 1) {
+            tabRo[0][0] = densityDRX[x - 1][y - 1];
+            tabRo[0][1] = densityDRX[x - 1][y];
+            tabRo[0][2] = 0.0;
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = 0.0;
+            tabRo[2][0] = densityDRX[x + 1][y - 1];
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = 0.0;
+        } else {
+            tabRo[0][0] = densityDRX[sizeX - 1][y - 1];
+            tabRo[0][1] = densityDRX[sizeX - 1][y];
+            tabRo[0][2] = densityDRX[sizeX - 1][y + 1];
+            tabRo[1][0] = densityDRX[x][y - 1];
+            tabRo[1][1] = densityDRX[x][y];
+            tabRo[1][2] = densityDRX[x][y + 1];
+            tabRo[2][0] = densityDRX[x + 1][y - 1];
+            tabRo[2][1] = densityDRX[x + 1][y];
+            tabRo[2][2] = densityDRX[x + 1][y + 1];
+        }
+
+        return tabRo;
+    }
+
+    private double retMaxRo(int i, int j) {
+        nonPeriodicRo(i, j);
+        double max = tabRo[0][0];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (tabRo[x][y] > max) {
+                    max = tabRo[x][y];
+                }
+            }
+        }
+        return max;
+    }
+
     private int hexrand(int x, int y, boolean w) {
         if (w) {
             tab = periodic(x, y);
@@ -665,7 +795,6 @@ public class Controller implements Initializable {
         }
     }
 
-
     private void monteCarlo() {
         genX = new boolean[sizeX];
         genY = new boolean[sizeY];
@@ -716,6 +845,94 @@ public class Controller implements Initializable {
         }
     }
 
+    public boolean edge(int i, int j) {
+        tab = nonPeriodic(i, j);
+        int[] pom = neighbours(tab);
+        for (int k = 0; k < sizeN; k++)
+            if ((k != IDTab[i][j]) && (pom[k] != 0))
+                return true;
+        return false;
+    }
+
+    private void dislocations() {
+        double dis = aA / bB + (1 - aA / bB) * Math.exp(-bB * tT);
+        double avgDis = dis / (sizeX * sizeY);
+        double eq = 0.3;
+        double small = 5E11;
+        int id, x, y;
+        List<Point> ePoints = new ArrayList<>();
+        List<Point> nePoints = new ArrayList<>();
+        Random r = new Random();
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                densityDRX[i][j] = densityDRX[i][j] + eq * avgDis;
+                dis -= eq * avgDis;
+                if (edge(i, j)) {
+                    ePoints.add(new Point(i, j));
+                } else {
+                    nePoints.add(new Point(i, j));
+                }
+            }
+        }
+        //System.out.println(edgeCounter + " " + ePoints.size());
+        //System.out.println(notEdgeCounter + " " + nePoints.size());
+        while (dis > small) {
+            int d = r.nextInt(100);
+            if (d > 20) {
+                id = r.nextInt(ePoints.size());
+                x = ePoints.get(id).x;
+                y = ePoints.get(id).y;
+            } else {
+                id = r.nextInt(nePoints.size());
+                x = nePoints.get(id).x;
+                y = nePoints.get(id).y;
+            }
+            densityDRX[x][y] = densityDRX[x][y] + small;
+            dis -= small;
+            //System.out.println(dis);
+        }
+    }
+
+    private void DRX() {
+        dislocations();
+        int n = sizeN;
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                //System.out.println(densityDRX[i][j]);
+                if ((densityDRX[i][j] >= criticRo) && (edge(i, j))) {
+                    System.out.println("TAK");
+                    IDTab[i][j] = n++;
+                    densityDRX[i][j] = 0.0;
+                }
+            }
+        }
+        if (tT != 0) {
+            for (int i = 0; i < sizeX; i++) {
+                for (int j = 0; j < sizeY; j++) {
+                    tab = nonPeriodic(i, j);
+                    int[] pom = neighbours(tab);
+                    int tem = Arrays.stream(pom).sum();
+                    int max = 0;
+                    if ((tem < 8) && (retMaxRo(i, j) <= stateDRX[i][j])) {
+                        for (int m = 0; m < 3; m++) {
+                            for (int o = 0; o < 3; o++)
+                                if (max < tab[m][o])
+                                    max = tab[m][o];
+                        }
+                        IDTab[i][j] = max;
+                        densityDRX[i][j] = 0.0;
+                    }
+                }
+            }
+        }
+        tT = tT + 0.01;
+    }
+
+    private void recrystallize() {
+        DRX();
+        stateDRX = densityDRX;
+    }
+
     private void fillEnergy() {
         int max = energyTab[0][0], tempMax;
         for (int i = 0; i < sizeX; i++) {
@@ -741,8 +958,6 @@ public class Controller implements Initializable {
         }
     }
 
-
-
     private void fillLabels() {
 
         for (int i = 0; i < sizeX; i++) {
@@ -750,12 +965,6 @@ public class Controller implements Initializable {
 
                 if ((IDTab[i][j]) > 0) {
                     labelTab[i][j].setStyle("-fx-background-color: rgb(" + col[IDTab[i][j]][0] + "," + col[IDTab[i][j]][1] + "," + col[IDTab[i][j]][2] + ");");
-//                    if ((IDTab[i][j]) < 10) {
-//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[IDTab[i][j] - 1] + ";");
-//                    } else if (((IDTab[i][j]) >= 10) && ((IDTab[i][j]) < 20)) {
-//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 10)] + ";");
-//                    } else {
-//                        labelTab[i][j].setStyle("-fx-background-color:" + colors[(IDTab[i][j] - 20)] + ";");
                 }
             }
         }

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <Label layoutX="20.0" layoutY="15.0" text="1. Typ sąsiedztwa">
          <font>
@@ -105,6 +105,11 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <TextField fx:id="ktRange" layoutX="610.0" layoutY="70.0" prefWidth="70.0" promptText="kt"/>
+      <TextField fx:id="ktRange" layoutX="610.0" layoutY="70.0" prefWidth="70.0" promptText="kt" />
+      <Button layoutX="360.0" layoutY="70.0" mnemonicParsing="false" onAction="#DRXClick" text="DRX">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>
